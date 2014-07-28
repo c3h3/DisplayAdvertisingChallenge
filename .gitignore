@@ -1,3 +1,4 @@
+.gitignore
 
 # Python #
 ##########
@@ -35,3 +36,4 @@ dev_ipynbs/.ipynb_checkpoints/
 dist/
 hunkaggle.egg-info/
 build/
+.DS_Store
