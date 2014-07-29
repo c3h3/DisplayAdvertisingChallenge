@@ -55,25 +55,25 @@ def data_clean(input_path, output_path, C_cols, id_index = None, nan_rm = False,
 
 @app.task
 ## Imputer Trainer.
-def imputers_train(data, col_classes):
-    # Initializing an empty list to store the imputers
-    imputers = []
-    for col_ind in range(len(col_classes)):
-        col = data.columns[col_ind]
-        print("Processing the imputer of column " + col + ".")
-        col_class = col_classes[col_ind]
-        print("Column data type: " + col_class)
-        Y = data[col]
-        X = data.drop(col, 1)
-        if col_class == 'categorical':
-            rfc = RFC(n_estimators=20)
-            imputer = rfc.fit(X, Y)
-            imputers.append(imputer)
-        elif col_class == 'numeric':
-            rfr = RFR(n_estimators=20)
-            imputer = rfr.fit(X, Y)
-            imputers.append(imputer)
-        else:
-            pass
-    return imputers
+def imputer_train(col_ind):
+    import pandas as pd
+    data = pd.DataFrame.from_csv("/Users/DboyLiao/Documents/kaggle/data/Display_Advertising_Challenge/complete_train.csv")
+    print "[" + str(col_ind) + "th column] " + "Loading data."
+    data = data.set_index("Id")
+    data = data.drop("Label", 1)
+    col_name = data.columns[col_ind]
+    col_classes = ["numeric" if ind <= 12 else "categorical" for ind in range(39)]
+    col_class = col_classes[col_ind]
+    print "[" + str(col_ind) + "th column] " + "Processing."
+    Y = data[col_name]
+    X = data.drop(col_name, 1)
+    if col_class == 'categorical':
+        rfc = RFC(n_estimators=20)
+        imputer = rfc.fit(X, Y)
+    elif col_class == 'numeric':
+        rfr = RFR(n_estimators=20)
+        imputer = rfr.fit(X, Y)
+    else:
+        pass
+    return imputer
     
