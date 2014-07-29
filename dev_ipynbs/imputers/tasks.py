@@ -7,6 +7,8 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.ensemble import RandomForestRegressor as RFR
+from sklearn.svm import SVC
+from sklearn.linear_model import ElasticNet
 
 from pymongo import MongoClient
 mongo_client = MongoClient()
@@ -68,12 +70,20 @@ def imputer_train(col_ind):
     Y = data[col_name]
     X = data.drop(col_name, 1)
     if col_class == 'categorical':
-        rfc = RFC(n_estimators=20)
-        imputer = rfc.fit(X, Y)
+        svc = SVC(C = 10)
+        imputer = svc.fit(X, Y)
     elif col_class == 'numeric':
-        rfr = RFR(n_estimators=20)
-        imputer = rfr.fit(X, Y)
+        EN = ElasticNet()
+        imputer = EN.fit(X, Y)
     else:
         pass
     return imputer
+
+@app.task
+def My_add(x, y):
+    return x + y
+
+@app.task
+def My_mul(x, y):
+    return x * y
     
