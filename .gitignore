@@ -35,3 +35,7 @@ dev_ipynbs/.ipynb_checkpoints/
 dist/
 hunkaggle.egg-info/
 build/
+
+local_settings.py
+
+*.col
