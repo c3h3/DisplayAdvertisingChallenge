@@ -22,7 +22,7 @@ def get_idx_by_colname(colname):
 
 def get_one_column_data_list(col_idx):
     assert isinstance(col_idx, int)
-    assert col_idx > 0
+    assert col_idx >= 0
     assert col_idx < len(COLNAMES)
     
     with open(TRAINING_DATA_PATH,"r") as rf:
@@ -56,7 +56,7 @@ class ColumnData(object):
 def get_one_data_column(colname):
     col_idx = get_idx_by_colname(colname)
     assert isinstance(col_idx, int)
-    assert col_idx > 0
+    assert col_idx >= 0
     assert col_idx < len(COLNAMES)
     
     with open(TRAINING_DATA_PATH,"r") as rf:
@@ -78,7 +78,7 @@ def get_one_data_column(colname):
 def pickle_one_data_column(colname):
     col_idx = get_idx_by_colname(colname)
     assert isinstance(col_idx, int)
-    assert col_idx > 0
+    assert col_idx >= 0
     assert col_idx < len(COLNAMES)
     
     with open(TRAINING_DATA_PATH,"r") as rf:

@@ -39,3 +39,5 @@ build/
 local_settings.py
 
 *.col
+*.zip
+*.tar.gz
