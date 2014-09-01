@@ -1,8 +1,11 @@
 
 import os
 
-SOURCE_DATA_DIR = "/home/c3h3/c3h3works/HunKaggle/DisplayAdvertisingChallenge/data/"
-MAX_N_DATA_COLUMN_DIVIDERS = 12
+# SOURCE_DATA_DIR = "/home/c3h3/c3h3works/HunKaggle/DisplayAdvertisingChallenge/data/"
+# MAX_N_DATA_COLUMN_DIVIDERS = 12
+
+SOURCE_DATA_DIR = "/home/c3h3/c3h3works/Kaggles/GithubRepos/DisplayAdvertisingChallenge/data/"
+MAX_N_DATA_COLUMN_DIVIDERS = 5
 
 TRAINING_DATA_PATH = os.path.join(SOURCE_DATA_DIR, "train.csv")
 TESTING_DATA_PATH = os.path.join(SOURCE_DATA_DIR, "test.csv")
@@ -34,10 +37,10 @@ with open(TRAINING_DATA_PATH,"r") as rf:
 
 
 
-try:
-    from local_settings import *
-except:
-    pass 
+# try:
+#     from local_settings import *
+# except:
+#     pass 
 
 
 # local_settings.py
