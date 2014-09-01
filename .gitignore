@@ -41,3 +41,5 @@ local_settings.py
 *.col
 *.zip
 *.tar.gz
+*/.DS_Store
+.DS_Store
