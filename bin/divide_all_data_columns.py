@@ -1,7 +1,10 @@
+from settings import TRAINING_DATA_PATH, TESTING_DATA_PATH, TRAINING_COLUMNS_PATH, TESTING_COLUMNS_PATH, MAX_N_DATA_COLUMN_DIVIDERS
+import numpy as np
+from multiprocessing import Pool 
+from column_analysis_tooles import *
 
-from multiprocessing import Pool   
-
-dividing_jobs = [xx for xx in COLUMN_NAMES if xx not in list_all_data_columns()]
+colnames = get_colnames(TESTING_DATA_PATH)
+dividing_jobs = [(colname, TESTING_DATA_PATH, TESTING_COLUMNS_PATH) for colname in colnames.to_list()]
 
 print "dividing_jobs = ", dividing_jobs
 
