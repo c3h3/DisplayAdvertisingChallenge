@@ -43,3 +43,6 @@ local_settings.py
 *.tar.gz
 */.DS_Store
 .DS_Store
+
+
+data/
