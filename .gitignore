@@ -45,4 +45,5 @@ local_settings.py
 .DS_Store
 
 
-data/
+data/test_blzs/
+data/train_blzs/
