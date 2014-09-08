@@ -57,13 +57,23 @@ def convert_column_to_blz(colname):
             test_barr.attrs["has_missings"] = test_data_has_missing_values
             
         else:
+            
+            if colname in ["Id","Label"]:
+                convert_type = int
+            else:
+                convert_type = np.float32
+            
+            default_missing_value = 1.0e10
+                
+            
+            
             data = get_one_column_data_list(colname, data_csv_path=TRAINING_DATA_PATH)
             has_missing = "" in data
-            missing_value = int(1.0e16)
+            missing_value = convert_type(default_missing_value)
             if has_missing:
-                int_data = map(lambda xx: missing_value if xx in [""] else int(xx), data)
+                int_data = map(lambda xx: missing_value if xx in [""] else convert_type(xx), data)
             else:
-                int_data = map(int, data)
+                int_data = map(convert_type, data)
                 
             blz_root = os.path.join(TRAINING_BLZ_PATH,colname)
             barr = blz.barray(int_data,rootdir=blz_root)
@@ -73,11 +83,11 @@ def convert_column_to_blz(colname):
             if colname != "Label":
                 data = get_one_column_data_list(colname, data_csv_path=TESTING_DATA_PATH)
                 has_missing = "" in data
-                missing_value = int(1.0e16)
+                missing_value = convert_type(default_missing_value)
                 if has_missing:
-                    int_data = map(lambda xx: missing_value if xx in [""] else int(xx), data)
+                    int_data = map(lambda xx: missing_value if xx in [""] else convert_type(xx), data)
                 else:
-                    int_data = map(int, data)
+                    int_data = map(convert_type, data)
                 
                 blz_root = os.path.join(TESTING_BLZ_PATH,colname)
                 barr = blz.barray(int_data,rootdir=blz_root)
