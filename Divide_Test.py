@@ -1,8 +1,43 @@
-'''
-Created on Aug 17, 2014
 
+# coding: utf-8
+
+"""
+settings.py
+"""
+import os
+
+SOURCE_DATA_DIR = "/Users/DboyLiao/Documents/kaggle/DisplayAdvertisingChallenge/data/"
+MAX_N_DATA_COLUMN_DIVIDERS = 5
+
+TRAINING_DATA_PATH = os.path.join(SOURCE_DATA_DIR, "train.csv")
+TESTING_DATA_PATH = os.path.join(SOURCE_DATA_DIR, "test.csv")
+
+TRAINING_COLUMNS_PATH = os.path.join(SOURCE_DATA_DIR, "train_cols")
+TAR_TRAINING_COLUMNS_PATH = os.path.join(SOURCE_DATA_DIR, "tar_train_cols")
+
+TESTING_COLUMNS_PATH = os.path.join(SOURCE_DATA_DIR, "test_cols")
+TAR_TESTING_COLUMNS_PATH = os.path.join(SOURCE_DATA_DIR, "tar_test_cols")
+
+
+if not ("train_cols" in os.listdir(SOURCE_DATA_DIR)):
+    os.mkdir(TRAINING_COLUMNS_PATH)
+
+if not ("tar_train_cols" in os.listdir(SOURCE_DATA_DIR)):
+    os.mkdir(TAR_TRAINING_COLUMNS_PATH)
+
+if not ("test_cols" in os.listdir(SOURCE_DATA_DIR)):
+    os.mkdir(TESTING_COLUMNS_PATH)
+    
+if not ("tar_test_cols" in os.listdir(SOURCE_DATA_DIR)):
+    os.mkdir(TAR_TESTING_COLUMNS_PATH)
+
+
+"""
+columns_analysis_tooles
+
+Created on Aug 17, 2014
 @author: c3h3
-'''
+"""
 from settings import TRAINING_DATA_PATH, TESTING_DATA_PATH, TRAINING_COLUMNS_PATH, TESTING_COLUMNS_PATH
 import numpy as np
 
@@ -12,6 +47,7 @@ except:
     import pickle
 
 import os
+
 
 """
 Class ColumnData. 
@@ -32,12 +68,9 @@ class ColumnData(object):
         except KeyError:
             raise KeyError, "%s has no %s attribute." % (self.__dict__["name"], name)
     def __str__(self):
-        msg = "States Vector: %s \n" % self.states_vec + \
-        "States Position: %s \n" % self.states_pos_vec + \
-        "Index Vector: %s \n" % self.index_vec
+        msg = "States Vector: %s \n" % self.states_vec +         "States Position: %s \n" % self.states_pos_vec +         "Index Vector: %s \n" % self.index_vec
         return msg
-    def __len__(self):
-        return len(self.index_vec)
+
 
 """
 Helper functions.
@@ -105,3 +138,11 @@ def pickle_one_data_column(name_path_tuple):
 
 def list_all_data_columns(data_path): 
     return [xx.split(".")[0] for xx in os.listdir(data_path) if xx.endswith(".col")]
+
+
+colnames = get_colnames(TESTING_DATA_PATH)
+for colname in colnames:
+    print "[Columnize] Processing " + colname + ".col"
+    temp = get_one_data_column(colname, TESTING_DATA_PATH)
+    temp.save_as_pickle_file(TESTING_COLUMNS_PATH)
+    del temp

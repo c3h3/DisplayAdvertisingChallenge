@@ -1,5 +1,8 @@
+from settings import TRAINING_DATA_PATH, TESTING_DATA_PATH, TRAINING_COLUMNS_PATH, TESTING_COLUMNS_PATH, MAX_N_DATA_COLUMN_DIVIDERS
+import numpy as np
+from multiprocessing import Pool 
+from column_analysis_tooles import *
 
-from multiprocessing import Pool   
 
 # dividing_jobs = [xx for xx in COLUMN_NAMES if xx not in list_all_data_columns()]
 # 
@@ -10,6 +13,7 @@ from multiprocessing import Pool
 # 
 # p.close()
 # p.join()
+
 
 from hunkaggle.criteo.settings import TRAINING_COLUMN_NAMES
 from hunkaggle.criteo.settings import MAX_N_DATA_COLUMN_DIVIDERS

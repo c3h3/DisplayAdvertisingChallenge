@@ -1,9 +1,10 @@
-
+"""
+settings.py
+"""
 import os
 
-
-SOURCE_DATA_DIR = "/home/c3h3/c3h3works/Kaggles/GithubRepos/DisplayAdvertisingChallenge/data/"
-MAX_N_DATA_COLUMN_DIVIDERS = 5
+SOURCE_DATA_DIR = "/Users/DboyLiao/Documents/kaggle/DisplayAdvertisingChallenge/data/"
+MAX_N_DATA_COLUMN_DIVIDERS = 2
 
 
 try:
@@ -39,13 +40,10 @@ if not os.path.exists(TESTING_COLUMNS_PATH):
     os.mkdir(TESTING_COLUMNS_PATH)
 
 
-
-with open(TRAINING_DATA_PATH,"r") as rf:
-    colnames_line = rf.readline()
-    COLUMN_NAMES  = colnames_line.strip().split(",")
-
-
-
+# try:
+#     from local_settings import *
+# except:
+#     pass 
 
 
 
