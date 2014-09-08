@@ -77,7 +77,7 @@ def convert_column_to_blz(colname):
                 
             blz_root = os.path.join(TRAINING_BLZ_PATH,colname)
             barr = blz.barray(int_data,rootdir=blz_root)
-            barr.attrs["missing_value"] = missing_value
+            barr.attrs["missing_value"] = int(missing_value)
             barr.attrs["has_missing"] = has_missing    
             
             if colname != "Label":
@@ -91,6 +91,6 @@ def convert_column_to_blz(colname):
                 
                 blz_root = os.path.join(TESTING_BLZ_PATH,colname)
                 barr = blz.barray(int_data,rootdir=blz_root)
-                barr.attrs["missing_value"] = missing_value
+                barr.attrs["missing_value"] = int(missing_value)
                 barr.attrs["has_missing"] = has_missing
         
