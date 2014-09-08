@@ -61,7 +61,7 @@ def convert_column_to_blz(colname):
             if colname in ["Id","Label"]:
                 convert_type = int
             else:
-                convert_type = np.float32
+                convert_type = np.float64
             
             default_missing_value = 1.0e10
                 
