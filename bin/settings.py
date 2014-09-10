@@ -3,7 +3,7 @@ settings.py
 """
 import os
 
-SOURCE_DATA_DIR = "/Users/DboyLiao/Documents/kaggle/DisplayAdvertisingChallenge/data/"
+SOURCE_DATA_DIR = "/Users/DboyLiao/Desktop/DisplayAdvertisingChallenge/data/"
 MAX_N_DATA_COLUMN_DIVIDERS = 2
 
 

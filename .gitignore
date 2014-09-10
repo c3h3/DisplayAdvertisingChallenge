@@ -7,9 +7,11 @@
 # IPython Notebook #
 ####################
 .ipynb_checkpoints
+.python-version
 
 # OS generated files #
 ######################
+.DS_Store
 
 # R related #
 #############
@@ -23,6 +25,7 @@
 # dataset related #
 ###################
 *.csv
+data
 
 # pickle files      #
 #####################
