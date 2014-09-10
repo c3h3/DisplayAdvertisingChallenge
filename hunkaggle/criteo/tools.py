@@ -8,6 +8,18 @@ import numpy as np
 import blz, os
 
 
+def get_separation_positions(totalN, divideN):
+    if totalN % divideN == 0:
+        return [i*divideN for i in range(totalN / divideN + 1)]
+    else:
+        return [i*divideN for i in range(totalN / divideN + 1)] + [totalN]
+
+    
+def get_separation_pairs(totalN, divideN):
+    return_list = get_separation_positions(totalN, divideN)
+    return zip(return_list[:-1], return_list[1:])
+
+
 def get_one_column_data_list(colname, data_csv_path=TRAINING_DATA_PATH):
     
     with open(data_csv_path,"r") as rf:
