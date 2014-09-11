@@ -64,4 +64,3 @@ def modelPredictor(modelsPath_modelIndex_dataPath_colNames_tuple):
         os.system(command)
     final_table = blz.btable(columns = columns, names = ["Id", "Predict"], rootdir = data_rootdir)
     print "The result_table btable rootdir is under {path}".format(path=data_rootdir)
-    return final_table
