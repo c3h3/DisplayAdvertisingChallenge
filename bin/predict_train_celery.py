@@ -5,8 +5,8 @@ from hunkaggle.criteo.settings import TESTING_COLUMN_NAMES
 import blz, os
 import numpy as np
 
-from predict_celery.tasks import app
-from predict_celery.tasks import modelPredictor
+from predict_train_celery.tasks import app
+from predict_train_celery.tasks import modelPredictor
 from settings import *
 try:
     import cPickle as pickle

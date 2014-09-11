@@ -1,10 +1,6 @@
 from __future__ import absolute_import
 
-from predict_celery.celery import app
-
-from pymongo import MongoClient
-mongo_client = MongoClient("localhost", 27017)
-predict_SVMs_results = mongo_client.predict_results
+from predict_test_celery.celery import app
 
 try:
     import cPickle as pickle

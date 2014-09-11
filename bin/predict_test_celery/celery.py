@@ -2,10 +2,10 @@ from __future__ import absolute_import
 from celery import Celery
 
 app = Celery(
-	'predict_celery',
+	'predict_test_celery',
     broker='mongodb://',
     backend='mongodb://',
-    include=['predict_celery.tasks']
+    include=['predict_test_celery.tasks']
 )
 
 # Optional configuration, see the application user guide.

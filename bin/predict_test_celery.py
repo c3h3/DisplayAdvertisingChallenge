@@ -5,8 +5,8 @@ from hunkaggle.criteo.settings import TESTING_COLUMN_NAMES
 import blz, os
 import numpy as np
 
-from predict_celery.tasks import app
-from predict_celery.tasks import modelPredictor
+from predict_test_celery.tasks import app
+from predict_test_celery.tasks import modelPredictor
 from settings import *
 try:
     import cPickle as pickle
@@ -20,7 +20,7 @@ with open(model_path, "rb") as rf:
 num_models = len(models)
 print num_models
 
-jobs = [(model_path, ind, tools.TESTING_BLZ_PATH, TESTING_COLUMN_NAMES) for ind in range(num_models)]
+jobs = [(model_path, ind, tools.TESTING_BLZ_PATH, TESTING_COLUMN_NAMES) for ind in range(104, num_models)]
 
 for job in jobs:
     modelPredictor.delay(job) 
