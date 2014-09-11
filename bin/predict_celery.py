@@ -22,4 +22,4 @@ print num_models
 
 jobs = [(model_path, ind, tools.TESTING_BLZ_PATH, TESTING_COLUMN_NAMES) for ind in range(num_models)]
 
-results = [modelPredictor.delay(job) for job in jobs]
+modelPredictor.delay(jobs[0])
