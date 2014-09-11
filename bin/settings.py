@@ -8,12 +8,7 @@ MAX_N_DATA_COLUMN_DIVIDERS = 2
 
 
 try:
-    from local_settings import *
-    
-    # local_settings.py
-    # SOURCE_DATA_DIR = "/home/c3h3/c3h3works/HunKaggle/DisplayAdvertisingChallenge/data/"
-    # MAX_N_DATA_COLUMN_DIVIDERS = 12
-    
+    from local_settings import *    
 except:
     pass
     

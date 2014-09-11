@@ -6,7 +6,7 @@ bin/rfc_predict_prob/
 # Python #
 ##########
 *.pyc
-
+local_settings.py
 
 # IPython Notebook #
 ####################

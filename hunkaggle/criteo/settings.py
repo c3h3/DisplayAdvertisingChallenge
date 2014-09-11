@@ -2,7 +2,7 @@
 import os
 
 
-SOURCE_DATA_DIR = "/home/c3h3/c3h3works/Kaggles/GithubRepos/DisplayAdvertisingChallenge/data/"
+SOURCE_DATA_DIR = "/home/qmal/Kaggle/DisplayAdvertisingChallenge/data/"
 MAX_N_DATA_COLUMN_DIVIDERS = 5
 
 
