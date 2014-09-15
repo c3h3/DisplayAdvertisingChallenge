@@ -40,11 +40,15 @@ if __name__ == "__main__":
     print "finished loading data ... ", (datetime.datetime.now() - tic).seconds
     print "training model "
     
-    para2 = {'min_samples_split': 20, 'n_estimators': 170}
-    from sklearn.ensemble import RandomForestClassifier
+    def training_model(X,y):
+        para2 = {'min_samples_split': 20, 'n_estimators': 170}
+        from sklearn.ensemble import RandomForestClassifier
     
-    rfc = RandomForestClassifier(n_jobs=12, **para2)
-    rfc.fit(X,y)
+    
+        rfc = RandomForestClassifier(n_jobs=12, **para2)
+        rfc.fit(X,y)
+    
+    training_model(X,y)
     
     print "finished training model ... ", (datetime.datetime.now() - tic).seconds
     

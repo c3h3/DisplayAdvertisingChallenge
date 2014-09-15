@@ -14,13 +14,17 @@ except:
     
 
 DEFAULT_LIMIT_INSTANCE = 5000000
+PRINT_MESSAGE_FORMAT = "[{model_id}] {message}"
+
 
 
 class Model(object):
     # Change self.model_home to self.MODELS_HOME
-    MODELS_HOME = MODELS_PATH
+    MODELS_HOME = MODELS_PATH 
+    
     
     def __init__(self, model_series = "TryModels", model_id=None, model_home = MODELS_PATH):
+        
         self.model_series = model_series
         self.model_home = model_home
         
@@ -42,13 +46,13 @@ class Model(object):
             os.mkdir(self.all_testing_prediction_path)
         
         
-        
     @property
     def all_models_in_series(self):
         return [one_model for one_model in os.listdir(self.model_home) if one_model.startswith(self.model_series)]
     
     
     def create_new_model_id(self):
+        
         self.model_id = self.model_series + "_" + str(uuid.uuid1())
         self.model_path = os.path.join(self.model_home, self.model_id)
         
@@ -79,14 +83,23 @@ class Model(object):
     
     def fit_model(self, append_self=True, feature_columns=TRAINING_COLUMN_NAMES[2:], label_columns=TRAINING_COLUMN_NAMES[1]):
         
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] get features ... ")
+        
         self.feature_columns = [one_col for one_col in TRAINING_COLUMN_NAMES if one_col in feature_columns]
+        
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] get labels ... ")
         
         if isinstance(label_columns,(str,unicode)):
             self.label_columns = [label_columns]
         
         read_columns = self.label_columns + self.feature_columns
         
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] build features blz ... ")
+        
         training_cols_blz = map(lambda xx: blz.open(os.path.join(tools.TRAINING_BLZ_PATH,xx)),read_columns)
+        
+        
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] get training_data_slices from blz ... ")
         
         if "training_data_slices" in self.__dict__:
             sample_data_arr = np.c_[map(lambda xx:xx[self.training_data_slices],training_cols_blz)].T
@@ -96,6 +109,7 @@ class Model(object):
         X = sample_data_arr[:,1:]
         y = sample_data_arr[:,0]
         
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] init model ... ")
         
         if "all_model_parameters" in self.__dict__:
             model = self.model_type(**self.all_model_parameters)
@@ -106,8 +120,11 @@ class Model(object):
         else:
             model = self.model_type()
         
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] save model_info ... ")
         
         self.save_model_info()
+        
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] fit model ans return ... ")
         
         if append_self:
             self.model = model.fit(X,y)
@@ -129,16 +146,28 @@ class Model(object):
         
         read_columns = self.feature_columns
         
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] read predict_features_blz ... ")
+        
         if on_which_data == "training":
             prediction_results_blz_path = os.path.join(self.all_training_prediction_path, prediction_methond)
-            predict_features_blz = map(lambda xx: blz.open(os.path.join(tools.TRAINING_BLZ_PATH,xx)),read_columns)
+            predict_features_blz_path_list = map(lambda xx: os.path.join(tools.TRAINING_BLZ_PATH,xx),read_columns)
         else:
             prediction_results_blz_path = os.path.join(self.all_testing_prediction_path, prediction_methond)
-            predict_features_blz = map(lambda xx: blz.open(os.path.join(tools.TESTING_BLZ_PATH,xx)),read_columns)
+            predict_features_blz_path_list = map(lambda xx: os.path.join(tools.TESTING_BLZ_PATH,xx),read_columns)
+        
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] checking prediction results ... ")
             
         if os.path.exists(prediction_results_blz_path):
+            print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] there already exist prediction results ... ")
             return blz.open(prediction_results_blz_path)
         else:
+            
+            print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] there is no prediction result ... ")
+            print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] load predict_features_blz ... ")
+            
+            predict_features_blz = map(blz.open, predict_features_blz_path_list)
+            
+            print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] load prediction_function ... ")
             
             prediction_function = getattr(self.model,prediction_methond)
         
@@ -151,6 +180,8 @@ class Model(object):
             all_pairs = tools.get_separation_pairs(totalN, divideN)
         
             one_pair = all_pairs[0]
+            print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] predict data slice %s ~ %s " % tuple(one_pair))
+        
         
             predict_features_arr = np.c_[map(lambda xx:xx[one_pair[0]:one_pair[1]],predict_features_blz)].T 
         
@@ -158,13 +189,16 @@ class Model(object):
                                             rootdir=prediction_results_blz_path)
         
             for one_pair in all_pairs[1:]:
-                print "one_pair = ",one_pair
+                print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] predict data slice %s ~ %s " % tuple(one_pair))
+        
                 predict_features_arr = np.c_[map(lambda xx:xx[one_pair[0]:one_pair[1]],predict_features_blz)].T  
             
                 prediction_results_blz.append(prediction_function(predict_features_arr))
                 del predict_features_arr
                 
             prediction_results_blz.flush()
+            print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[predict_data] finished prediction_results_blz.flush() and return")
+    
         
             return prediction_results_blz
     
