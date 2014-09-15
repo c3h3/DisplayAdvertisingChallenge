@@ -14,6 +14,7 @@ model_params = {"model_series":"RFmss20ne130-40Groups",
                 "model_parameters":rf_params, 
                 "data_slice":one_slice,
                 "predict_limit_instances":1000000}
-    
-create_new_model_with_origin_training_data(**model_params)
+
+if __name__ == "__main__":
+    create_new_model_with_origin_training_data(**model_params)
 
