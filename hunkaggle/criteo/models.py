@@ -106,6 +106,8 @@ class Model(object):
             model = self.model_type()
         
         
+        self.save_model_info()
+        
         if append_self:
             self.model = model.fit(X,y)
             return self.model
@@ -161,7 +163,7 @@ class Model(object):
                 prediction_results_blz.append(prediction_function(predict_features_arr))
                 del predict_features_arr
                 
-            predict_features_arr.flush()
+            prediction_results_blz.flush()
         
             return prediction_results_blz
     
@@ -208,6 +210,17 @@ class Model(object):
                 model_info["model_paramters"] = self.model_parameters
                 
             
+        if "feature_columns" in self.__dict__:
+            model_info["feature_columns"] = self.feature_columns
+        else:
+            model_info["feature_columns"] = TRAINING_COLUMN_NAMES[2:]
+        
+        
+        if "additional_feature_columns" in self.__dict__:
+            model_info["additional_feature_columns"] = self.additional_feature_columns
+        else:
+            model_info["additional_feature_columns"] = []
+        
             
         
         with open(model_pickle_file_path, "wb") as wf:
@@ -217,3 +230,29 @@ class Model(object):
         
         
         
+def create_new_model_with_origin_training_data(model_series, model_type, model_parameters={}, 
+                                               feature_columns=TRAINING_COLUMN_NAMES[2:], 
+                                               data_slice=slice(-1000000,None,None), 
+                                               prediction_methond = "decision_function",
+                                               predict_limit_instances = 1000000,
+                                               predict_on = ["training","testing"]):
+    
+    model = Model(model_series=model_series)
+    
+    model.set_training_model_type(model_type)
+    model.set_training_model_parameters(**model_parameters)
+    model.set_training_data_slice(data_slice)
+    
+    model.fit_model(feature_columns=feature_columns)
+    
+    for one_dataset in predict_on:
+        model.predict_data(prediction_methond=prediction_methond, 
+                           limit_instances=predict_limit_instances, 
+                           on_which_data=one_dataset)
+    
+    
+    
+    
+    
+    
+    
