@@ -5,7 +5,6 @@ from hunkaggle.criteo.settings import TESTING_COLUMN_NAMES
 import blz, os
 import numpy as np
 
-from predict_test_celery.tasks import app
 from predict_test_celery.tasks import modelPredictor
 from settings import *
 try:
