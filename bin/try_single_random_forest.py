@@ -41,7 +41,7 @@ if __name__ == "__main__":
     print "training model "
     
     def training_model(X,y):
-        para2 = {'min_samples_split': 20, 'n_estimators': 170}
+        para2 = {'min_samples_split': 10, 'n_estimators': 200}
         from sklearn.ensemble import RandomForestClassifier
     
     
