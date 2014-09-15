@@ -19,16 +19,26 @@ if __name__ == "__main__":
 # 
 #     create_new_model_with_origin_training_data(**model_params)
     
+    import datetime
+    tic = datetime.datetime.now()
+    print "tic = ",tic
+    
     from hunkaggle.criteo import tools
     from hunkaggle.criteo.settings import TRAINING_COLUMN_NAMES
     import blz, os
     import numpy as np
-
+    
+    print "finished import ... ", (datetime.datetime.now() - tic).seconds
+    print "loading data ... "
+    
     training_cols = map(lambda xx: blz.open(os.path.join(tools.TRAINING_BLZ_PATH,xx)),TRAINING_COLUMN_NAMES[1:])
     sample_data = map(lambda xx:xx[-1000000:],training_cols)
     sample_data_arr = np.c_[sample_data].T
     X = sample_data_arr[:,1:]
     y = sample_data_arr[:,0]
+    
+    print "finished loading data ... ", (datetime.datetime.now() - tic).seconds
+    print "training model "
     
     para2 = {'min_samples_split': 20, 'n_estimators': 170}
     from sklearn.ensemble import RandomForestClassifier
@@ -36,5 +46,6 @@ if __name__ == "__main__":
     rfc = RandomForestClassifier(n_jobs=12, **para2)
     rfc.fit(X,y)
     
+    print "finished training model ... ", (datetime.datetime.now() - tic).seconds
     
     
