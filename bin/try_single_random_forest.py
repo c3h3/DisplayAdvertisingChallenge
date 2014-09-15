@@ -8,12 +8,12 @@ training_data_slices = map(lambda xx:slice(*xx),tools.get_separation_pairs(total
 from sklearn.ensemble import RandomForestClassifier
 
 one_slice = training_data_slices[0]
-rf_params = {'min_samples_split': 20, 'n_estimators': 130, "n_jobs":3}
+rf_params = {'min_samples_split': 10, 'n_estimators': 200, "n_jobs":12}
 model_params = {"model_series":"RFmss20ne130-40Groups", 
                 "model_type": RandomForestClassifier, 
                 "model_parameters":rf_params, 
                 "data_slice":one_slice,
-                "predict_limit_instances":1000000}
+                "predict_limit_instances":5000000}
 
 if __name__ == "__main__":
     create_new_model_with_origin_training_data(**model_params)
