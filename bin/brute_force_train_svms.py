@@ -27,7 +27,7 @@ def _create_new_model_with_origin_training_data(para_dict):
     create_new_model_with_origin_training_data(**para_dict)
  
 p = Pool(processes = MAX_N_DATA_COLUMN_DIVIDERS)
-p.map(lambda xx:_create_new_model_with_origin_training_data(**xx), create_models_parameters)
+p.map(_create_new_model_with_origin_training_data, create_models_parameters)
   
 p.close()
 p.join()
