@@ -1,8 +1,12 @@
 
 import os
 
+<<<<<<< HEAD
 
 SOURCE_DATA_DIR = "/home/qmal/Kaggle/DisplayAdvertisingChallenge/data/"
+=======
+WORKING_DIR = "/home/c3h3/c3h3works/Kaggles/GithubRepos/DisplayAdvertisingChallenge/"
+>>>>>>> master
 MAX_N_DATA_COLUMN_DIVIDERS = 5
 
 
@@ -10,7 +14,7 @@ try:
     from local_settings import *
     
     # local_settings.py
-    # SOURCE_DATA_DIR = "/home/c3h3/c3h3works/HunKaggle/DisplayAdvertisingChallenge/data/"
+    # WORK_DIR = "/home/c3h3/c3h3works/Kaggles/GithubRepos/DisplayAdvertisingChallenge/"
     # MAX_N_DATA_COLUMN_DIVIDERS = 12
     
 except:
@@ -18,12 +22,12 @@ except:
     
 
 
-assert os.path.exists(SOURCE_DATA_DIR)
+# assert os.path.exists(SOURCE_DATA_DIR)
 
-# if not os.path.exists(SOURCE_DATA_DIR):
-#     os.mkdir(SOURCE_DATA_DIR)
-    
-
+SOURCE_DATA_DIR = os.path.join(WORKING_DIR, "data")
+if not os.path.exists(SOURCE_DATA_DIR):
+    os.mkdir(SOURCE_DATA_DIR)
+     
 
 TRAINING_DATA_PATH = os.path.join(SOURCE_DATA_DIR, "train.csv")
 TESTING_DATA_PATH = os.path.join(SOURCE_DATA_DIR, "test.csv")
@@ -56,6 +60,8 @@ with open(TESTING_DATA_PATH,"r") as rf:
     TESTING_COLUMN_NAMES  = colnames_line.strip().split(",")
 
 
-
+MODELS_PATH = os.path.join(SOURCE_DATA_DIR, "models")
+if not os.path.exists(MODELS_PATH):
+    os.mkdir(MODELS_PATH)
 
 
