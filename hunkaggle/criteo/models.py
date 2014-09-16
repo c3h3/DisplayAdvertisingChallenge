@@ -1,20 +1,48 @@
 
 from hunkaggle.criteo import tools
-from hunkaggle.criteo.settings import TRAINING_COLUMN_NAMES
+from hunkaggle.criteo.settings import TRAINING_COLUMN_NAMES, TESTING_COLUMN_NAMES
 import blz, os
 import numpy as np
-from hunkaggle.criteo.settings import MODELS_PATH
-
+from hunkaggle.criteo.settings import MODELS_PATH, SUBMITS_PATH
 
 import uuid
+import datetime
+
 try:
     import cPickle as pickle
 except:
     import pickle
     
+import scipy as sp
+
 
 DEFAULT_LIMIT_INSTANCE = 5000000
 PRINT_MESSAGE_FORMAT = "[{model_id}] {message}"
+
+
+def llfun(act, pred):
+    epsilon = 1e-15
+    pred = sp.maximum(epsilon, pred)
+    pred = sp.minimum(1-epsilon, pred)
+    ll = sum(act*sp.log(pred) + sp.subtract(1,act)*sp.log(sp.subtract(1,pred)))
+    ll = ll * -1.0/len(act)
+    return ll
+
+def llfun_npsum(act, pred):
+    epsilon = 1e-15
+    pred = sp.maximum(epsilon, pred)
+    pred = sp.minimum(1-epsilon, pred)
+    ll = np.sum(act*sp.log(pred) + sp.subtract(1,act)*sp.log(sp.subtract(1,pred)))
+    ll = ll * -1.0/len(act)
+    return ll
+
+def ll_vec(act, pred):
+    epsilon = 1e-15
+    pred = sp.maximum(epsilon, pred)
+    pred = sp.minimum(1-epsilon, pred)
+    return -act*sp.log(pred) - sp.subtract(1,act)*sp.log(sp.subtract(1,pred))
+
+
 
 
 
@@ -202,7 +230,7 @@ class Model(object):
         
             return prediction_results_blz
     
-    
+    @property
     def list_all_predictions(self):
         return {"training":os.listdir(self.all_training_prediction_path),
                 "testing":os.listdir(self.all_testing_prediction_path)}
@@ -215,7 +243,7 @@ class Model(object):
         else:
             loading_blz_path = os.path.join(self.all_testing_prediction_path,valuetype)
         
-        #eturn os.path.exists(loading_blz_path), loading_blz_path
+        #return os.path.exists(loading_blz_path), loading_blz_path
     
         if os.path.exists(loading_blz_path):
             return blz.open(loading_blz_path)
@@ -262,7 +290,37 @@ class Model(object):
             pickle.dump(model_info,wf)
             
         return model_info
+    
+    
+    def compute_training_data_logloss(self, return_type="value"):
+        assert return_type in ["value", "vector"]
+        assert "predict_proba" in self.list_all_predictions["training"]
+        prediction_prob = self.load_prediction_blz(datatype="training", valuetype="predict_proba")[:,1]
+        exact_ans = blz.open(os.path.join(tools.TRAINING_BLZ_PATH,TRAINING_COLUMN_NAMES[1]))[0:]
+        if return_type == "value":
+            return llfun(exact_ans,prediction_prob)
+        else:
+            return ll_vec(exact_ans,prediction_prob)
+    
+    
+    def create_kaggle_submit_csv(self, submit_format="%d,%.6f"):
+        assert "predict_proba" in self.list_all_predictions["testing"]
+        prediction_prob = self.load_prediction_blz(datatype="testing", valuetype="predict_proba")[:,1]
+        ids_barray = blz.open(os.path.join(tools.TESTING_BLZ_PATH,TESTING_COLUMN_NAMES[0]))
+        bt = blz.btable(columns=[ids_barray,prediction_prob], names=["Id","Predicted"])
+        all_results = [submit_format % tuple(xx) for xx in bt.iter()]
+        all_results_string = "\n".join([",".join(bt.names)] + all_results)
         
+        submit_filename = "%s_%s.csv" % (self.model_id, datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+        
+        submit_filepath = os.path.join(SUBMITS_PATH,submit_filename)
+        
+        with open(submit_filepath,"w") as wf:
+            wf.write(all_results_string)
+        
+        
+        
+            
         
         
 def create_new_model_with_origin_training_data(model_series, model_type, model_parameters={}, 
