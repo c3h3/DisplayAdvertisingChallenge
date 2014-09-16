@@ -124,7 +124,7 @@ class Model(object):
         
         self.save_model_info()
         
-        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] fit model ans return ... ")
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[fit_model] fit model and return ... ")
         
         if append_self:
             self.model = model.fit(X,y)
