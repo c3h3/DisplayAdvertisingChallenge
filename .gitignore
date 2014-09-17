@@ -9,6 +9,10 @@ bin/rfc_predict_prob/
 
 data/models/
 
+data/svm_models_v1/
+data/rf_models_v1/
+
+
 # Python #
 ##########
 *.pyc

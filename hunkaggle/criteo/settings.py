@@ -64,4 +64,6 @@ MODELS_PATH = os.path.join(SOURCE_DATA_DIR, "models")
 if not os.path.exists(MODELS_PATH):
     os.mkdir(MODELS_PATH)
 
-
+SUBMITS_PATH = os.path.join(SOURCE_DATA_DIR, "submits")
+if not os.path.exists(SUBMITS_PATH):
+    os.mkdir(SUBMITS_PATH)
