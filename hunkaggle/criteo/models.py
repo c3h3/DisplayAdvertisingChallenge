@@ -4,6 +4,7 @@ from hunkaggle.criteo.settings import TRAINING_COLUMN_NAMES, TESTING_COLUMN_NAME
 import blz, os
 import numpy as np
 from hunkaggle.criteo.settings import MODELS_PATH, SUBMITS_PATH
+from scipy.special import erf
 
 import uuid
 import datetime
@@ -20,13 +21,15 @@ DEFAULT_LIMIT_INSTANCE = 5000000
 PRINT_MESSAGE_FORMAT = "[{model_id}] {message}"
 
 
+
 def llfun(act, pred):
     epsilon = 1e-15
     pred = sp.maximum(epsilon, pred)
     pred = sp.minimum(1-epsilon, pred)
-    ll = sum(act*sp.log(pred) + sp.subtract(1,act)*sp.log(sp.subtract(1,pred)))
+    ll = sp.sum(act*sp.log(pred) + sp.subtract(1,act)*sp.log(sp.subtract(1,pred)))
     ll = ll * -1.0/len(act)
     return ll
+
 
 def llfun_npsum(act, pred):
     epsilon = 1e-15
@@ -36,12 +39,22 @@ def llfun_npsum(act, pred):
     ll = ll * -1.0/len(act)
     return ll
 
+
+def blz_llvec_fun(act, pred, output_vector_type ="numpy"):
+    epsilon = 1e-15
+    pred[pred<epsilon] = epsilon
+    pred[pred > (1-epsilon) ] = 1-epsilon
+    bt = blz.btable([act,pred],names=["y","py"])
+    if output_vector_type =="numpy":
+        return bt.eval("-y*log(py) - (1-y)*log(1-py)",out_flavor="numpy")
+    else:
+        return bt.eval("-y*log(py) - (1-y)*log(1-py)")
+    
 def ll_vec(act, pred):
     epsilon = 1e-15
     pred = sp.maximum(epsilon, pred)
     pred = sp.minimum(1-epsilon, pred)
     return -act*sp.log(pred) - sp.subtract(1,act)*sp.log(sp.subtract(1,pred))
-
 
 
 
@@ -73,7 +86,18 @@ class Model(object):
         if not os.path.exists(self.all_testing_prediction_path):
             os.mkdir(self.all_testing_prediction_path)
         
+    
+    def __unicode__(self):
+        if self.has_model_info:
+            return self.model_id + " : " + unicode(self.model_info)
+        else:
+            return self.model_id
+    
+    
+    def __repr__(self):
+        return self.__unicode__()
         
+    
     @property
     def all_models_in_series(self):
         return [one_model for one_model in os.listdir(self.model_home) if one_model.startswith(self.model_series)]
@@ -292,15 +316,62 @@ class Model(object):
         return model_info
     
     
-    def compute_training_data_logloss(self, return_type="value"):
+    @property
+    def has_model_info(self):
+        return "model_info.pickle" in os.listdir(self.model_path)
+    
+    
+    @property
+    def model_info(self):
+        assert "model_info.pickle" in os.listdir(self.model_path)
+        model_pickle_file_path = os.path.join(self.model_path,"model_info.pickle")
+        with open(model_pickle_file_path, "rb") as wf:
+            model_info = pickle.load(wf)
+            
+        return model_info
+    
+
+    
+    def compute_training_data_logloss(self, return_type="value", 
+                                      use_prediction="predict_proba", 
+                                      prob_func=lambda xx:erf(np.subtract(xx,-0.9)),
+                                      output_vector_type = "numpy",
+                                      sample_slice  = slice(0,None,None)
+                                      ):
+    
         assert return_type in ["value", "vector"]
-        assert "predict_proba" in self.list_all_predictions["training"]
-        prediction_prob = self.load_prediction_blz(datatype="training", valuetype="predict_proba")[:,1]
-        exact_ans = blz.open(os.path.join(tools.TRAINING_BLZ_PATH,TRAINING_COLUMN_NAMES[1]))[0:]
-        if return_type == "value":
-            return llfun(exact_ans,prediction_prob)
+        assert output_vector_type in ["blz","numpy"]
+        assert use_prediction in self.list_all_predictions["training"]
+        
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[compute_training_data_logloss] conpute logloss with %s " % use_prediction)
+        
+        use_prediction_blz = self.load_prediction_blz(datatype="training", valuetype=use_prediction)
+        
+        
+        if use_prediction == "predict_proba":
+            prediction_prob = use_prediction_blz[sample_slice,1]
         else:
-            return ll_vec(exact_ans,prediction_prob)
+            #_vec_prob_func = np.vectorize(prob_func)
+            #prediction_prob = np.apply_along_axis(prob_func,0,use_prediction_blz[0:])
+            prediction_prob = prob_func(use_prediction_blz[sample_slice])
+            
+            #prediction_prob = blz.eval("prob_func(use_prediction_blz)", vm="python")
+        
+        #return prediction_prob
+        
+        exact_ans = blz.open(os.path.join(tools.TRAINING_BLZ_PATH,TRAINING_COLUMN_NAMES[1]))[sample_slice]
+        
+#         exact_ans = blz.open(os.path.join(tools.TRAINING_BLZ_PATH,TRAINING_COLUMN_NAMES[1]))
+#         bt = blz.btable(columns=[prediction_prob,exact_ans],names=["y","py"])
+        
+        logloss_vector = blz_llvec_fun(exact_ans,prediction_prob,output_vector_type)
+        logloss_value = logloss_vector.sum()/logloss_vector.shape[0]
+        print PRINT_MESSAGE_FORMAT.format(model_id=self.model_id,message="[compute_training_data_logloss] logloss_value = %s " % logloss_value)
+        
+        if return_type == "value":
+            return logloss_value
+        else:
+            return logloss_vector
     
     
     def create_kaggle_submit_csv(self, submit_format="%d,%.6f"):
@@ -319,9 +390,33 @@ class Model(object):
             wf.write(all_results_string)
         
         
-        
             
+class ModelSeries(object):
+    def __init__(self, series_name, series_home):
+        self.series_name = series_name
+        self.series_home = series_home
+    
+    
+    @property
+    def series_model_ids(self):
+        return map(lambda xx:xx.replace(self.series_name+"_",""),os.listdir(self.series_home))
         
+        
+    @property
+    def series_models(self):
+        return [Model(model_series=self.series_name, 
+                      model_id=one_id, 
+                      model_home = self.series_home) for one_id in self.series_model_ids]
+        
+    
+    def compute_training_data_logloss(self,**kwargs):
+        logloss_dict = {}
+        
+        for one_model in self.series_models:
+            logloss_dict[one_model.model_id] = one_model.compute_training_data_logloss(**kwargs)
+        return logloss_dict
+
+
         
 def create_new_model_with_origin_training_data(model_series, model_type, model_parameters={}, 
                                                feature_columns=TRAINING_COLUMN_NAMES[2:], 
