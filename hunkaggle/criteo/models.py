@@ -392,6 +392,7 @@ class Model(object):
         
             
 class ModelSeries(object):
+    
     def __init__(self, series_name, series_home):
         self.series_name = series_name
         self.series_home = series_home
@@ -399,7 +400,13 @@ class ModelSeries(object):
     
     @property
     def series_model_ids(self):
-        return map(lambda xx:xx.replace(self.series_name+"_",""),os.listdir(self.series_home))
+        return [ xx.replace(self.series_name+"_","") for xx in os.listdir(self.series_home) if xx.startswith(self.series_name)]
+    
+    
+    @property
+    def series_model_series_ids(self):
+        return [ xx for xx in os.listdir(self.series_home) if xx.startswith(self.series_name)]
+    
         
         
     @property
@@ -410,11 +417,143 @@ class ModelSeries(object):
         
     
     def compute_training_data_logloss(self,**kwargs):
+        
         logloss_dict = {}
         
         for one_model in self.series_models:
             logloss_dict[one_model.model_id] = one_model.compute_training_data_logloss(**kwargs)
         return logloss_dict
+    
+    
+    def create_averaging_model(self, model_series="AvgModels", model_id=None, model_home=AVG_MODELS_PATH):
+        
+        pass
+    
+    
+    
+
+import itertools
+
+
+def convert_int_to_slice(int_or_slice):
+    assert isinstance(int_or_slice, (int,slice))
+    
+    if isinstance(int_or_slice, int):
+        return slice(int_or_slice,int_or_slice+1,None)
+    else:
+        return int_or_slice
+    
+    
+
+class BlzArraysList(list):
+    def __init__(self, *barrays):
+        
+        # checking if one_barray is blz.barray's instance
+        for one_barray in barrays:
+            assert isinstance(one_barray, blz.barray)
+        
+        # checking there is only one shape in barrays
+        assert len(set(map(lambda xx:xx.shape,barrays))) == 1
+        
+        list.__init__(self, barrays)
+        
+    
+    @property
+    def common_shape(self):
+        return self[0].shape
+        
+    
+    def _select_all_barrays(self, *select_slices):
+        
+        # checking select_slices has the same len to self.common_shape
+        assert len(select_slices) == len(self.common_shape)
+        
+#         for one_selector in select_slices:
+#             assert isinstance(one_selector, (int,slice))
+            
+        _select_slices = tuple(map(convert_int_to_slice,select_slices))
+        
+        return map(lambda xx:xx[_select_slices],self)
+    
+    def select_all_barrays(self, select_slices, combine_fun=lambda xx:np.concatenate(xx,1)):
+        if callable(combine_fun):
+            return combine_fun(self._select_all_barrays(*select_slices))
+        else:
+            return self._select_slices(*select_slices)
+        
+        
+    def divide_axis_into_eqaul_size_slices(self, axis, limit_n_per_slice = 2000000):
+        assert isinstance(axis, int)
+        assert axis <= len(self.common_shape)
+        
+        total_n = self.common_shape[axis]
+        m_groups = total_n / limit_n_per_slice if total_n % limit_n_per_slice == 0 else total_n / limit_n_per_slice +1
+        dived_n = total_n / m_groups if total_n % m_groups == 0 else total_n / m_groups + 1
+        divided_slices = map(lambda xx:slice(*xx),tools.get_separation_pairs(total_n,dived_n))
+        return divided_slices
+        
+        
+    def generate_axis_dividing_slice_selectors(self, select_format=(None,1), limit_n_per_slice = 2000000):
+        
+        assert len(select_format) == len(self.common_shape)
+        
+        pre_product_slices_list = []
+        
+        count_None = 0
+        
+        for idx in range(len(select_format)):
+            if select_format[idx] == None:
+                pre_product_slices_list.append(self.divide_axis_into_eqaul_size_slices(axis=idx,
+                                                                                       limit_n_per_slice=limit_n_per_slice))
+                
+                count_None = count_None + 1
+            else:
+                pre_product_slices_list.append([convert_int_to_slice(select_format[idx])])
+                
+                
+        assert count_None <= 1, "Morre than one divider"
+        
+        return list(itertools.product(*pre_product_slices_list))
+    
+    
+    def select_and_apply(self, apply_func = lambda xx:np.dot(xx,np.ones(xx.shape[1]) / xx.shape[1]),
+                         select_format = (None,1), 
+                         combine_fun = lambda xx:np.concatenate(xx,1), 
+                         limit_n_per_slice = 2000000):
+        
+        selected_slices = self.generate_axis_dividing_slice_selectors(select_format=select_format,
+                                                                      limit_n_per_slice=limit_n_per_slice)
+        
+        print "selected_slices = ",selected_slices
+        
+        one_selected_slices = selected_slices[0]
+        combined_arr = self.select_all_barrays(one_selected_slices,
+                                               combine_fun=combine_fun)
+            
+        output_barray = blz.barray(apply_func(combined_arr))
+        
+        for one_selected_slices in selected_slices[1:]:
+            print "applying one_selected_slices = ",one_selected_slices
+            
+            combined_arr = self.select_all_barrays(one_selected_slices,
+                                                   combine_fun=combine_fun)
+        
+            output_barray.append(apply_func(combined_arr))
+            
+        return output_barray
+            
+
+class ModelsList(list):
+    def __init__(self,*models):
+        list.__init__(self, models)
+        
+    def load_prediction_blz(self,datatype="training", valuetype="predict_proba"):
+        return BlzArraysList(*map(lambda xx:xx.load_prediction_blz(datatype, valuetype),self))
+        
+        
+class AverageModels(ModelsList):
+    pass
+
 
 
         
