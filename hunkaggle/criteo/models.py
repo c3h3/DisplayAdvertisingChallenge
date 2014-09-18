@@ -3,7 +3,7 @@ from hunkaggle.criteo import tools
 from hunkaggle.criteo.settings import TRAINING_COLUMN_NAMES, TESTING_COLUMN_NAMES
 import blz, os
 import numpy as np
-from hunkaggle.criteo.settings import MODELS_PATH, SUBMITS_PATH
+from hunkaggle.criteo.settings import MODELS_PATH, SUBMITS_PATH, AVG_MODELS_PATH
 from scipy.special import erf
 
 import uuid

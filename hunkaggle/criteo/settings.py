@@ -62,3 +62,8 @@ if not os.path.exists(MODELS_PATH):
 SUBMITS_PATH = os.path.join(SOURCE_DATA_DIR, "submits")
 if not os.path.exists(SUBMITS_PATH):
     os.mkdir(SUBMITS_PATH)
+
+AVG_MODELS_PATH = os.path.join(SOURCE_DATA_DIR, "avg_models")
+if not os.path.exists(AVG_MODELS_PATH):
+    os.mkdir(AVG_MODELS_PATH)
+
