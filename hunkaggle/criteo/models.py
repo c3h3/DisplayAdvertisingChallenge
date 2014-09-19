@@ -22,6 +22,15 @@ PRINT_MESSAGE_FORMAT = "[{model_id}] {message}"
 
 
 
+def get_labels_barray(selected_slice=None):
+    if selected_slice==None:
+        return blz.open(os.path.join(tools.TRAINING_BLZ_PATH,TRAINING_COLUMN_NAMES[1]))
+    else:
+        assert isinstance(selected_slice,slice)
+        return blz.open(os.path.join(tools.TRAINING_BLZ_PATH,TRAINING_COLUMN_NAMES[1]))[selected_slice]
+    
+
+
 def llfun(act, pred):
     epsilon = 1e-15
     pred = sp.maximum(epsilon, pred)

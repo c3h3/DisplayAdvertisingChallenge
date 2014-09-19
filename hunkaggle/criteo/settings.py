@@ -9,7 +9,7 @@ try:
     from local_settings import *
     
     # local_settings.py
-    # WORK_DIR = "/home/c3h3/c3h3works/Kaggles/GithubRepos/DisplayAdvertisingChallenge/"
+    # WORKING_DIR = "/home/c3h3/c3h3works/Kaggles/GithubRepos/DisplayAdvertisingChallenge/"
     # MAX_N_DATA_COLUMN_DIVIDERS = 12
     
 except:
