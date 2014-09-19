@@ -343,7 +343,7 @@ class Model(object):
     
     def compute_training_data_logloss(self, return_type="value", 
                                       use_prediction="predict_proba", 
-                                      prob_func=lambda xx:erf(np.subtract(xx,-0.9)),
+                                      prob_func=lambda xx:0.5 + 0.5*erf(xx/(2**0.5)),
                                       output_vector_type = "numpy",
                                       sample_slice  = slice(0,None,None)
                                       ):

@@ -21,7 +21,8 @@ def _create_new_model_with_origin_training_data(one_slice):
                     "model_type": SGDClassifier, 
                     "model_parameters":{"loss":"log", "n_iter":30}, 
                     "data_slice":one_slice,
-                    "predict_limit_instances":5000000}
+                    "predict_limit_instances":5000000,
+                    "prediction_methond":"predict_proba"}
     create_new_model_with_origin_training_data(**model_params)
 
 
