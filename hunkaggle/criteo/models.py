@@ -605,10 +605,11 @@ def get_rf_v2_as_testing_X():
                                                select_slice=(slice(0,None,None),1))
 
 
-def knn_predict(x, X ,y, k=500):
+def knn_predict(x, X ,y, k=500, id=None):
     x_err = np.array([np.abs(X[:,i] - x[i]) for i in range(x.shape[0])]).T
     x_err_sum = x_err.sum(1)
-    return y[np.argsort(x_err_sum)[:k]].sum() / float(k)
+    result = y[np.argsort(x_err_sum)[:k]].sum() / float(k)
+    return {"result":result, "id":id}
 
 
 
