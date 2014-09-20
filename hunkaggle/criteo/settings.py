@@ -24,6 +24,22 @@ if not os.path.exists(SOURCE_DATA_DIR):
     os.mkdir(SOURCE_DATA_DIR)
      
 
+
+
+# RF_MSS20_NE170_40GROUPS_PATH = os.path.join(os.path.join(SOURCE_DATA_DIR, "models"))
+# RF_MSS10_NE200_40GROUPS_PATH = os.path.join(os.path.join(SOURCE_DATA_DIR, "models"))
+
+try:
+    from local_settings import RF_MSS20_NE170_40GROUPS_PATH    
+except:
+    RF_MSS20_NE170_40GROUPS_PATH = os.path.join(os.path.join(SOURCE_DATA_DIR, "models"))
+
+try:
+    from local_settings import RF_MSS10_NE200_40GROUPS_PATH    
+except:
+    RF_MSS10_NE200_40GROUPS_PATH = os.path.join(os.path.join(SOURCE_DATA_DIR, "models"))
+
+
 TRAINING_DATA_PATH = os.path.join(SOURCE_DATA_DIR, "train.csv")
 TESTING_DATA_PATH = os.path.join(SOURCE_DATA_DIR, "test.csv")
 

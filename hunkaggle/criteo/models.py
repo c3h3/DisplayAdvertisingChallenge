@@ -9,6 +9,9 @@ from scipy.special import erf
 import uuid
 import datetime
 
+from hunkaggle.criteo.settings import SOURCE_DATA_DIR, RF_MSS20_NE170_40GROUPS_PATH, RF_MSS10_NE200_40GROUPS_PATH
+
+
 try:
     import cPickle as pickle
 except:
@@ -21,8 +24,8 @@ DEFAULT_LIMIT_INSTANCE = 5000000
 PRINT_MESSAGE_FORMAT = "[{model_id}] {message}"
 
 
-
 def get_labels_barray(selected_slice=None):
+
     if selected_slice==None:
         return blz.open(os.path.join(tools.TRAINING_BLZ_PATH,TRAINING_COLUMN_NAMES[1]))
     else:
@@ -565,7 +568,49 @@ class AverageModels(ModelsList):
 
 
 
-        
+
+
+
+def get_rf_model_prediction_as_features(model_series="RFmss20ne170-40Groups", 
+                                        series_home=RF_MSS20_NE170_40GROUPS_PATH,
+                                        datatype="training",
+                                        select_slice=(slice(0,5000000),1)):
+    rf_series = ModelSeries(series_name=model_series, series_home=series_home)
+    models_list = ModelsList(*rf_series.series_models)
+    barray_list = models_list.load_prediction_blz(datatype=datatype, valuetype="predict_proba")
+    return barray_list.select_all_barrays(select_slices=select_slice)
+
+
+def get_rf_v1_as_training_X():
+    return get_rf_model_prediction_as_features(model_series="RFmss20ne170-40Groups", 
+                                               series_home=RF_MSS20_NE170_40GROUPS_PATH,
+                                               select_slice=(slice(0,None,None),1))
+
+def get_rf_v2_as_training_X():
+    return get_rf_model_prediction_as_features(model_series="RFmss10ne200-40Groups", 
+                                               series_home=RF_MSS10_NE200_40GROUPS_PATH,
+                                               select_slice=(slice(0,None,None),1))
+
+
+def get_rf_v1_as_testing_X():
+    return get_rf_model_prediction_as_features(model_series="RFmss20ne170-40Groups", 
+                                               series_home=RF_MSS20_NE170_40GROUPS_PATH,
+                                               datatype="testing",
+                                               select_slice=(slice(0,None,None),1))
+
+def get_rf_v2_as_testing_X():
+    return get_rf_model_prediction_as_features(model_series="RFmss10ne200-40Groups", 
+                                               series_home=RF_MSS10_NE200_40GROUPS_PATH,
+                                               datatype="testing",
+                                               select_slice=(slice(0,None,None),1))
+
+
+    
+
+
+
+
+
 def create_new_model_with_origin_training_data(model_series, model_type, model_parameters={}, 
                                                feature_columns=TRAINING_COLUMN_NAMES[2:], 
                                                data_slice=slice(-1000000,None,None), 
