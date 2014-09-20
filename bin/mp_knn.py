@@ -14,6 +14,12 @@ try:
 except:
     import pickle
 
+import datetime
+tic = datetime.datetime.now()
+print "tic = ",tic
+print "loading data ... "
+    
+
 select_slice = slice(0,None,20)
 
 X = get_rf_v1_as_training_X((select_slice,1))
@@ -21,6 +27,9 @@ X = get_rf_v1_as_training_X((select_slice,1))
 testX = get_rf_v1_as_testing_X()
 
 y = get_labels_barray(select_slice)
+
+print "finished loading data ... ", (datetime.datetime.now() - tic).seconds
+print "start predicting ... "
 
 
 result_list = []
@@ -36,8 +45,25 @@ def apply_async_with_callback(start=0,end=100):
     pool.close()
     pool.join()
 
+    print "finished predicting ... ", (datetime.datetime.now() - tic).seconds
+    print "start pickling ... "
+
+
     with open("results_%s_%s.pickle" %(start,end),"wb") as wf:
         pickle.dump(result_list,wf)
+    
+    print "finished ... ", (datetime.datetime.now() - tic).seconds
+    
 
 if __name__ == '__main__':
-    apply_async_with_callback(start=0,end=100)
+    from hunkaggle.criteo.tools import get_separation_pairs
+    
+    pairs = get_separation_pairs(y.shape[0],100000)
+    
+    for one_pair in pairs:
+        print "one_pair = ",one_pair
+        apply_async_with_callback(*one_pair)
+    
+    
+    print "all finished ... ", (datetime.datetime.now() - tic).seconds    
+    

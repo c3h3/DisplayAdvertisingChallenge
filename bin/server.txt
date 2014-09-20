@@ -1,0 +1,26 @@
+
+In [3]: import blz, os
+In [4]: import numpy as np
+In [5]: from hunkaggle.criteo.settings import MODELS_PATH, SUBMITS_PATH
+In [6]: from hunkaggle.criteo.settings import SOURCE_DATA_DIR
+In [7]: from hunkaggle.criteo.models import *
+In [8]: rf_models_v1_models_path = os.path.join(os.path.join(SOURCE_DATA_DIR, "rf_models_v2"))
+In [9]: rf_series = ModelSeries(series_name="RFmss20ne170-40Groups", series_home=rf_models_v1_models_path)
+In [10]: models_list = ModelsList(*rf_series.series_models)
+In [11]: barray_list = models_list.load_prediction_blz(datatype="training", valuetype="predict_proba")
+In [12]: totalX = barray_list.select_all_barrays(select_slices=(slice(0,None),1))
+In [13]: def knn_predict(id, x, X ,y, k=500):
+   ....:         x_err = np.array([np.abs(X[:,i] - x[i]) for i in range(x.shape[0])]).T
+   ....:         x_err_sum = x_err.sum(1)
+   ....:         result = y[np.argsort(x_err_sum)[:k]].sum() / float(k)
+   ....:         del x_err
+   ....:         del x_err_sum
+   ....:         return id, result
+   ....: 
+In [14]: X = totalX[slice(0,None,20),:]
+In [15]: y = ge
+get_ipython                          get_rf_model_prediction_as_features  get_rf_v1_as_training_X              get_rf_v2_as_training_X
+get_labels_barray                    get_rf_v1_as_testing_X               get_rf_v2_as_testing_X               getattr
+In [15]: y = get_labels_barray ()
+In [16]: test_barray_list = models_list.load_prediction_blz(datatype="testing", valuetype="predict_proba")
+In [17]: testX = barray_list.select_all_barrays(select_slices=(slice(0,None),1))
