@@ -581,15 +581,15 @@ def get_rf_model_prediction_as_features(model_series="RFmss20ne170-40Groups",
     return barray_list.select_all_barrays(select_slices=select_slice)
 
 
-def get_rf_v1_as_training_X():
+def get_rf_v1_as_training_X(select_slice=(slice(0,None,None),1)):
     return get_rf_model_prediction_as_features(model_series="RFmss20ne170-40Groups", 
                                                series_home=RF_MSS20_NE170_40GROUPS_PATH,
-                                               select_slice=(slice(0,None,None),1))
+                                               select_slice=select_slice)
 
-def get_rf_v2_as_training_X():
+def get_rf_v2_as_training_X(select_slice=(slice(0,None,None),1)):
     return get_rf_model_prediction_as_features(model_series="RFmss10ne200-40Groups", 
                                                series_home=RF_MSS10_NE200_40GROUPS_PATH,
-                                               select_slice=(slice(0,None,None),1))
+                                               select_slice=select_slice)
 
 
 def get_rf_v1_as_testing_X():
@@ -605,7 +605,10 @@ def get_rf_v2_as_testing_X():
                                                select_slice=(slice(0,None,None),1))
 
 
-    
+def knn_predict(x, X ,y, k=500):
+    x_err = np.array([np.abs(X[:,i] - x[i]) for i in range(x.shape[0])]).T
+    x_err_sum = x_err.sum(1)
+    return y[np.argsort(x_err_sum)[:k]].sum() / float(k)
 
 
 
